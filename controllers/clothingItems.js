@@ -60,8 +60,4 @@ const deleteItem = (req, res) => {
     });
 };
 
-module.exports.createClothingItem = (req, res) => {
-  console.log(req.user._id);
-};
-
 module.exports = { getItems, createItem, deleteItem };
