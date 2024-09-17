@@ -1,4 +1,3 @@
-const user = require("../models/user");
 const User = require("../models/user");
 
 const {
@@ -6,8 +5,6 @@ const {
   NONEXISTENT_ERROR_CODE,
   DEFAULT_ERROR_CODE,
 } = require("../utils/errors");
-
-// GET /users
 
 const getUsers = (req, res) => {
   User.find({})
@@ -39,8 +36,6 @@ const getUser = (req, res) => {
       return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
     });
 };
-
-// POST /users
 
 const createUser = (req, res) => {
   const { name, avatar } = req.body;
