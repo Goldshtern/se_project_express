@@ -24,9 +24,11 @@ module.exports.likeItem = (req, res) =>
       if (err.name === "CastError") {
         return res
           .status(BAD_REQUEST_ERROR_CODE)
-          .send({ message: err.message });
+          .send({ message: "Invalid data" });
       }
-      return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
+      return res
+        .status(DEFAULT_ERROR_CODE)
+        .send({ message: "An error has occurred on the server" });
     });
 
 module.exports.dislikeItem = (req, res) =>
@@ -47,7 +49,9 @@ module.exports.dislikeItem = (req, res) =>
       if (err.name === "CastError") {
         return res
           .status(BAD_REQUEST_ERROR_CODE)
-          .send({ message: err.message });
+          .send({ message: "Invalid data" });
       }
-      return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
+      return res
+        .status(DEFAULT_ERROR_CODE)
+        .send({ message: "An error has occurred on the server" });
     });

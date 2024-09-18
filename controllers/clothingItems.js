@@ -6,18 +6,16 @@ const {
   DEFAULT_ERROR_CODE,
 } = require("../utils/errors");
 
-// GET/items
-
 const getItems = (req, res) => {
   ClothingItem.find()
     .then((clothingItems) => res.status(201).send({ clothingItems }))
     .catch((err) => {
       console.error(err);
-      return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
+      return res
+        .status(DEFAULT_ERROR_CODE)
+        .send({ message: "An error has occurred on the server" });
     });
 };
-
-// POST/items
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
@@ -29,20 +27,20 @@ const createItem = (req, res) => {
       if (err.name === "ValidationError") {
         return res
           .status(BAD_REQUEST_ERROR_CODE)
-          .send({ message: err.message });
+          .send({ message: "Invalid data" });
       }
-      return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
+      return res
+        .status(DEFAULT_ERROR_CODE)
+        .send({ message: "An error has occurred on the server" });
     });
 };
-
-// DELETE/items
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
-    .then(() => res.status(204).send({}))
+    .then(() => res.status(200).send({ message: "Delete success" }))
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
@@ -53,9 +51,11 @@ const deleteItem = (req, res) => {
       if (err.name === "CastError") {
         return res
           .status(BAD_REQUEST_ERROR_CODE)
-          .send({ message: err.message });
+          .send({ message: "Invaid data" });
       }
-      return res.status(DEFAULT_ERROR_CODE).send({ message: err.message });
+      return res
+        .status(DEFAULT_ERROR_CODE)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
