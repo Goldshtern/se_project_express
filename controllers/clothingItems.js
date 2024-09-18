@@ -8,7 +8,7 @@ const {
 
 const getItems = (req, res) => {
   ClothingItem.find()
-    .then((clothingItems) => res.status(201).send({ clothingItems }))
+    .then((clothingItems) => res.send({ clothingItems }))
     .catch((err) => {
       console.error(err);
       return res
