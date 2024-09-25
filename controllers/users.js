@@ -84,11 +84,11 @@ const login = (req, res) => {
     .catch((err) => {
       console.error(err);
     });
-  //if (err.message === "Incorrect email or password") {
-  //return res
-  //.status(UNAUTHORIZED_ERROR_CODE)
-  //.send({ message: "Authorization Required" });
-  //}
+  if (err.message === "Incorrect email or password") {
+    return res
+      .status(UNAUTHORIZED_ERROR_CODE)
+      .send({ message: "Authorization Required" });
+  }
   return res
     .status(DEFAULT_ERROR_CODE)
     .send({ message: "An error has occurred on the server" });
