@@ -2,8 +2,9 @@ const ClothingItem = require("../models/clothingItem");
 
 const {
   BAD_REQUEST_ERROR_CODE,
-  NONEXISTENT_ERROR_CODE,
+  FORBIDDEN_ERROR_CODE,
   DEFAULT_ERROR_CODE,
+  NONEXISTENT_ERROR_CODE,
 } = require("../utils/errors");
 
 const getItems = (req, res) => {
@@ -36,27 +37,61 @@ const createItem = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
-  const { itemId } = req.params;
-
-  ClothingItem.findByIdAndDelete(itemId)
+  clothingItem
+    .findById(req.params.itemId)
     .orFail()
-    .then(() => res.status(200).send({ message: "Delete success" }))
+    .then((item) => {
+      if (item.owner.toString() !== req.user._id) {
+        const error = new Error();
+        error.name = "ForbiddenError";
+        throw error;
+      }
+      return item
+        .deleteOne()
+        .then((deletedItem) => res.status(201).send(deletedItem));
+    })
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(NONEXISTENT_ERROR_CODE)
-          .send({ message: err.message });
-      }
       if (err.name === "CastError") {
         return res
           .status(BAD_REQUEST_ERROR_CODE)
-          .send({ message: "Invaid data" });
+          .send({ message: "Invalid data" });
+      }
+      if (err.name === "ForbiddenError") {
+        return res
+          .status(FORBIDDEN_ERROR_CODE)
+          .send({ message: "Access forbidden" });
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return res
+          .status(NONEXISTENT_ERROR_CODE)
+          .send({ message: "Requested resource not found" });
       }
       return res
         .status(DEFAULT_ERROR_CODE)
-        .send({ message: "An error has occurred on the server" });
+        .send({ message: "An error has occurred on the server." });
     });
 };
+// const { itemId } = req.params;
+
+// ClothingItem.findByIdAndDelete(itemId)
+// .orFail()
+// .then(() => res.status(200).send({ message: "Delete success" }))
+// .catch((err) => {
+// console.error(err);
+// if (err.name === "DocumentNotFoundError") {
+// return res
+// .status(NONEXISTENT_ERROR_CODE)
+// .send({ message: err.message });
+// }
+// if (err.name === "CastError") {
+// return res
+// .status(BAD_REQUEST_ERROR_CODE)
+// .send({ message: "Invaid data" });
+// }
+// return res
+// .status(DEFAULT_ERROR_CODE)
+// .send({ message: "An error has occurred on the server" });
+// });
 
 module.exports = { getItems, createItem, deleteItem };

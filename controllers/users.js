@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
+
 const bcrypt = require("bcryptjs");
+
 const User = require("../models/user");
+
 const { JWT_SECRET } = require("../utils/config");
 
 const {
@@ -10,41 +13,6 @@ const {
   CONFLICT_ERROR_CODE,
   UNAUTHORIZED_ERROR_CODE,
 } = require("../utils/errors");
-
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: "An error has occurred on the server" });
-    });
-};
-
-const getUser = (req, res) => {
-  const { userId } = req.params;
-
-  User.findById(userId)
-    .orFail()
-    .then((user) => res.status(200).send(user))
-    .catch((err) => {
-      console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(NONEXISTENT_ERROR_CODE)
-          .send({ message: "Requested resource not found" });
-      }
-      if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_ERROR_CODE)
-          .send({ message: "Invalid data" });
-      }
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: "An error has occurred on the server" });
-    });
-};
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
@@ -63,11 +31,11 @@ const createUser = (req, res) => {
       if (err.code === 11000) {
         return res
           .status(CONFLICT_ERROR_CODE)
-          .send({ message: "User already exist" });
+          .send({ message: "Duplicate error" });
       }
       return res
         .status(DEFAULT_ERROR_CODE)
-        .send({ message: "An error has occurred on the server" });
+        .send({ message: "An error has occurred on the server." });
     });
 };
 
@@ -83,14 +51,58 @@ const login = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
+      if (err.message === "Incorrect email or password") {
+        return res
+          .status(UNAUTHORIZED_ERROR_CODE)
+          .send({ message: "Authorization Required" });
+      }
+      return res
+        .status(DEFAULT_ERROR_CODE)
+        .send({ message: "An error has occurred on the server." });
     });
-  if (err.message === "Incorrect email or password") {
-    return res
-      .status(UNAUTHORIZED_ERROR_CODE)
-      .send({ message: "Authorization Required" });
-  }
-  return res
-    .status(DEFAULT_ERROR_CODE)
-    .send({ message: "An error has occurred on the server" });
 };
-module.exports = { getUsers, getUser, createUser, login };
+
+const getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .orFail()
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res
+          .status(NONEXISTENT_ERROR_CODE)
+          .send({ message: "Requested resource not found" });
+      }
+      if (err.name === "CastError") {
+        return res
+          .status(BAD_REQUEST_ERROR_CODE)
+          .send({ message: "Invalid data" });
+      }
+      return res
+        .status(DEFAULT_ERROR_CODE)
+        .send({ message: "An error has occurred on the server." });
+    });
+};
+
+const updateProfile = (req, res) => {
+  User.findByIdAndUpdate(
+    { _id: req.user._id },
+    { name: req.body.name, avatar: req.body.avatar },
+    { new: true, runValidators: true },
+  )
+    .orFail()
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "ValidationError") {
+        return res
+          .status(BAD_REQUEST_ERROR_CODE)
+          .send({ message: "Invalid data" });
+      }
+      return res
+        .status(DEFAULT_ERROR_CODE)
+        .send({ message: "An error has occurred on the server." });
+    });
+};
+
+module.exports = { createUser, login, getCurrentUser, updateProfile };
