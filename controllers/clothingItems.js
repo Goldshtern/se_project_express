@@ -37,8 +37,7 @@ const createItem = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
-  clothingItem
-    .findById(req.params.itemId)
+  ClothingItem.findById(req.params.itemId)
     .orFail()
     .then((item) => {
       if (item.owner.toString() !== req.user._id) {
@@ -72,26 +71,5 @@ const deleteItem = (req, res) => {
         .send({ message: "An error has occurred on the server." });
     });
 };
-// const { itemId } = req.params;
-
-// ClothingItem.findByIdAndDelete(itemId)
-// .orFail()
-// .then(() => res.status(200).send({ message: "Delete success" }))
-// .catch((err) => {
-// console.error(err);
-// if (err.name === "DocumentNotFoundError") {
-// return res
-// .status(NONEXISTENT_ERROR_CODE)
-// .send({ message: err.message });
-// }
-// if (err.name === "CastError") {
-// return res
-// .status(BAD_REQUEST_ERROR_CODE)
-// .send({ message: "Invaid data" });
-// }
-// return res
-// .status(DEFAULT_ERROR_CODE)
-// .send({ message: "An error has occurred on the server" });
-// });
 
 module.exports = { getItems, createItem, deleteItem };

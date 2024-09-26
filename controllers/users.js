@@ -65,7 +65,7 @@ const login = (req, res) => {
 const getCurrentUser = (req, res) => {
   User.findById(req.user._id)
     .orFail()
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {

@@ -10,7 +10,7 @@ const auth = (req, res, next) => {
       .status(UNAUTHORIZED_ERROR_CODE)
       .send({ message: "Authorization required" });
   }
-  const token = authorization.replace("Bearer ", " ");
+  const token = authorization.replace("Bearer ", "");
   let payload;
 
   try {

@@ -4,6 +4,8 @@ const cors = require("cors");
 
 const { PORT = 3001 } = process.env;
 const app = express();
+app.use(cors());
+
 const mainRouter = require("./routes/index");
 
 mongoose.set("strictQuery", true);
@@ -16,15 +18,7 @@ mongoose
 
 app.use(express.json());
 
-// app.use((req, res, next) => {
-// req.user = {
-// _id: "66e4150288479f39fbda19b0",
-// };
-// next();
-// });
-
 app.use("/", mainRouter);
-app.use(cors());
 
 console.log("Aleksandr");
 
