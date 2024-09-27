@@ -4,7 +4,6 @@ const cors = require("cors");
 
 const { PORT = 3001 } = process.env;
 const app = express();
-app.use(cors());
 
 const mainRouter = require("./routes/index");
 
@@ -17,6 +16,8 @@ mongoose
   .catch(console.error);
 
 app.use(express.json());
+
+app.use(cors());
 
 app.use("/", mainRouter);
 
