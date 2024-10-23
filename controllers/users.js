@@ -15,12 +15,12 @@ const {
 } = require("../utils/errors");
 
 const createUser = (req, res) => {
-  const { name, avatar, email, password } = req.body;
+  const { name, avatarUrl, email, password } = req.body;
 
   bcrypt
     .hash(password, 10)
-    .then((hash) => User.create({ name, avatar, email, password: hash }))
-    .then(() => res.status(201).send({ name, avatar, email }))
+    .then((hash) => User.create({ name, avatarUrl, email, password: hash }))
+    .then(() => res.status(201).send({ name, avatarUrl, email }))
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
@@ -87,7 +87,7 @@ const getCurrentUser = (req, res) => {
 const updateProfile = (req, res) => {
   User.findByIdAndUpdate(
     { _id: req.user._id },
-    { name: req.body.name, avatar: req.body.avatar },
+    { name: req.body.name, avatarUrl: req.body.avatarUrl },
     { new: true, runValidators: true },
   )
     .orFail()
