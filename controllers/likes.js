@@ -1,57 +1,48 @@
 const ClothingItem = require("../models/clothingItem");
 
-const {
-  BAD_REQUEST_ERROR_CODE,
-  NONEXISTENT_ERROR_CODE,
-  DEFAULT_ERROR_CODE,
-} = require("../utils/errors");
+//const {
+//BAD_REQUEST_ERROR_CODE,
+//NONEXISTENT_ERROR_CODE,
+//DEFAULT_ERROR_CODE,
+//} = require("../utils/errors");
 
-module.exports.likeItem = (req, res) =>
+const BadRequestError = require("../errors/bad-request-err");
+const NotFoundError = require("../errors/not-found-err");
+
+module.exports.likeItem = (req, res, next) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail()
+    .orFail(() => {
+      throw new NotFoundError("Requested resource not found");
+    })
     .then((likes) => res.status(200).send(likes))
     .catch((err) => {
-      console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(NONEXISTENT_ERROR_CODE)
-          .send({ message: err.message });
-      }
       if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_ERROR_CODE)
-          .send({ message: "Invalid data" });
+        next(new BadRequestError("Invalid data"));
+      } else {
+        next(err);
       }
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: "An error has occurred on the server" });
     });
+};
 
-module.exports.dislikeItem = (req, res) =>
+module.exports.dislikeItem = (req, res, next) => {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail()
+    .orFail(() => {
+      throw new NotFoundError("Requested resource not found");
+    })
     .then((likes) => res.status(200).send(likes))
     .catch((err) => {
-      console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(NONEXISTENT_ERROR_CODE)
-          .send({ message: err.message });
-      }
       if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_ERROR_CODE)
-          .send({ message: "Invalid data" });
+        next(new BadRequestError("Invalid data"));
+      } else {
+        next(err);
       }
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: "An error has occurred on the server" });
     });
+};

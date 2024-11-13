@@ -7,6 +7,8 @@ const app = express();
 
 const mainRouter = require("./routes/index");
 
+const errorHandler = require("./middlewares/error-handler");
+
 mongoose.set("strictQuery", true);
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
@@ -22,6 +24,8 @@ app.use(cors());
 app.use("/", mainRouter);
 
 console.log("Aleksandr");
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);

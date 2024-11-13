@@ -6,15 +6,20 @@ const User = require("../models/user");
 
 const { JWT_SECRET } = require("../utils/config");
 
-const {
-  BAD_REQUEST_ERROR_CODE,
-  NONEXISTENT_ERROR_CODE,
-  DEFAULT_ERROR_CODE,
-  CONFLICT_ERROR_CODE,
-  UNAUTHORIZED_ERROR_CODE,
-} = require("../utils/errors");
+//const {
+//BAD_REQUEST_ERROR_CODE,
+//NONEXISTENT_ERROR_CODE,
+//DEFAULT_ERROR_CODE,
+//CONFLICT_ERROR_CODE,
+//UNAUTHORIZED_ERROR_CODE,
+//} = require("../utils/errors");
 
-const createUser = (req, res) => {
+const BadRequestError = require("../errors/bad-request-err");
+const ConflictError = require("../errors/conflict-err");
+const UnauthorizedError = require("../errors/unauthorized-err");
+const NotFoundError = require("../errors/not-found-err");
+
+const createUser = (req, res, next) => {
   const { name, avatarUrl, email, password } = req.body;
 
   bcrypt
@@ -22,24 +27,17 @@ const createUser = (req, res) => {
     .then((hash) => User.create({ name, avatarUrl, email, password: hash }))
     .then(() => res.status(201).send({ name, avatarUrl, email }))
     .catch((err) => {
-      console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST_ERROR_CODE)
-          .send({ message: "Invalid data" });
+        next(new BadRequestError("Invalid data"));
+      } else if (err.code === 11000) {
+        next(new ConflictError("Duplicate email"));
+      } else {
+        next(err);
       }
-      if (err.code === 11000) {
-        return res
-          .status(CONFLICT_ERROR_CODE)
-          .send({ message: "Duplicate error" });
-      }
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: "An error has occurred on the server." });
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findUserByCredentials(email, password)
@@ -50,58 +48,45 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      console.error(err);
       if (err.message === "Incorrect email or password") {
-        return res
-          .status(UNAUTHORIZED_ERROR_CODE)
-          .send({ message: "Authorization Required" });
+        next(new UnauthorizedError("Authorization Required"));
+      } else {
+        next(err);
       }
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: "An error has occurred on the server." });
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail()
+    .orFail(() => {
+      throw new NotFoundError("Requested resource not found");
+    })
     .then((user) => res.send(user))
     .catch((err) => {
-      console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(NONEXISTENT_ERROR_CODE)
-          .send({ message: "Requested resource not found" });
-      }
       if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_ERROR_CODE)
-          .send({ message: "Invalid data" });
+        next(new BadRequestError("Invalid data"));
+      } else {
+        next(err);
       }
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: "An error has occurred on the server." });
     });
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   User.findByIdAndUpdate(
     { _id: req.user._id },
     { name: req.body.name, avatarUrl: req.body.avatarUrl },
     { new: true, runValidators: true },
   )
-    .orFail()
+    .orFail(() => {
+      throw new NotFoundError("User not found");
+    })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      console.error(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST_ERROR_CODE)
-          .send({ message: "Invalid data" });
+        next(new BadRequestError("Invalid data"));
+      } else {
+        next(err);
       }
-      return res
-        .status(DEFAULT_ERROR_CODE)
-        .send({ message: "An error has occurred on the server." });
     });
 };
 
