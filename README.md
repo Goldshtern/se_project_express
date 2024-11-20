@@ -15,3 +15,7 @@ APIs was created according to REST principles.
 `npm run start` — to launch the server
 
 `npm run dev` — to launch the server with the hot reload feature
+
+## Domain name
+
+wtwrg.kalbas.com.vn
