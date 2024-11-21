@@ -6,26 +6,18 @@ const User = require("../models/user");
 
 const { JWT_SECRET } = require("../utils/config");
 
-//const {
-//BAD_REQUEST_ERROR_CODE,
-//NONEXISTENT_ERROR_CODE,
-//DEFAULT_ERROR_CODE,
-//CONFLICT_ERROR_CODE,
-//UNAUTHORIZED_ERROR_CODE,
-//} = require("../utils/errors");
-
 const BadRequestError = require("../errors/bad-request-err");
 const ConflictError = require("../errors/conflict-err");
 const UnauthorizedError = require("../errors/unauthorized-err");
 const NotFoundError = require("../errors/not-found-err");
 
 const createUser = (req, res, next) => {
-  const { name, avatarUrl, email, password } = req.body;
+  const { name, avatar, email, password } = req.body;
 
   bcrypt
     .hash(password, 10)
-    .then((hash) => User.create({ name, avatarUrl, email, password: hash }))
-    .then(() => res.status(201).send({ name, avatarUrl, email }))
+    .then((hash) => User.create({ name, avatar, email, password: hash }))
+    .then(() => res.status(201).send({ name, avatar, email }))
     .catch((err) => {
       if (err.name === "ValidationError") {
         next(new BadRequestError("Invalid data"));
@@ -80,7 +72,7 @@ const updateProfile = (req, res, next) => {
     .orFail(() => {
       throw new NotFoundError("User not found");
     })
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "ValidationError") {
         next(new BadRequestError("Invalid data"));

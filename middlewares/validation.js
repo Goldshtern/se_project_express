@@ -17,7 +17,7 @@ const validateEmail = (value, helpers) => {
 
 const validateClothingItem = celebrate({
   body: Joi.object().keys({
-    itemName: Joi.string().min(2).max(30).required().messages({
+    name: Joi.string().min(2).max(30).required().messages({
       "string.base": "Item name must be a string",
       "string.empty": "Item name is required",
       "string.min": "Item name must be at least 2 characters long",
@@ -32,7 +32,7 @@ const validateClothingItem = celebrate({
 
 const validateUserInfo = celebrate({
   body: Joi.object().keys({
-    userName: Joi.string().min(2).max(30).messages({
+    name: Joi.string().min(2).max(30).messages({
       "string.base": "User name must be a string",
       "string.empty": "User name cannot be empty",
       "string.min": "User name must be at least 2 characters long",
@@ -66,9 +66,23 @@ const validateUserLogin = celebrate({
   }),
 });
 
+const validateUpdateUserData = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30).messages({
+      "string.min": 'The minimum length of the "name" field is 2',
+      "string.max": 'The maximum length of the "name" field is 30',
+    }),
+
+    avatar: Joi.string().required().custom(validateUrl).messages({
+      "string.empty": 'The "avatar" field must be filled in',
+      "string.uri": 'The "avatar" field must be a valid URL',
+    }),
+  }),
+});
+
 const validateId = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().length(24).hex().required().messages({
+    itemId: Joi.string().length(24).hex().required().messages({
       "string.base": "ID must be a string",
       "string.empty": "ID is required",
       "string.length": "ID must be 24 characters long",
@@ -81,5 +95,6 @@ module.exports = {
   validateClothingItem,
   validateUserInfo,
   validateUserLogin,
+  validateUpdateUserData,
   validateId,
 };

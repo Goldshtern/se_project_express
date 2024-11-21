@@ -1,12 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
 
-//const {
-//BAD_REQUEST_ERROR_CODE,
-//FORBIDDEN_ERROR_CODE,
-//DEFAULT_ERROR_CODE,
-//NONEXISTENT_ERROR_CODE,
-//} = require("../utils/errors");
-
 const BadRequestError = require("../errors/bad-request-err");
 const NotFoundError = require("../errors/not-found-err");
 const ForbiddenError = require("../errors/forbidden-err");
@@ -14,9 +7,7 @@ const ForbiddenError = require("../errors/forbidden-err");
 const getItems = (req, res, next) => {
   ClothingItem.find()
     .then((clothingItems) => res.send({ clothingItems }))
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 };
 
 const createItem = (req, res, next) => {

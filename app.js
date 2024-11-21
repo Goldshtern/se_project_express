@@ -38,8 +38,6 @@ app.use(routes);
 
 app.use(errorLogger);
 
-app.use("/", mainRouter);
-
 console.log("Aleksandr");
 
 app.use(errors());
