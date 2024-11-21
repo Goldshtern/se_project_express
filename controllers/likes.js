@@ -1,11 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
 
-//const {
-//BAD_REQUEST_ERROR_CODE,
-//NONEXISTENT_ERROR_CODE,
-//DEFAULT_ERROR_CODE,
-//} = require("../utils/errors");
-
 const BadRequestError = require("../errors/bad-request-err");
 const NotFoundError = require("../errors/not-found-err");
 
